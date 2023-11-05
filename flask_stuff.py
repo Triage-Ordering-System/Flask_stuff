@@ -1,47 +1,47 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from patients import Patients
 
 app = Flask(__name__)
 CORS(app)
 
-# This is a placeholder for the Patient class.
-# You would replace this with the actual class code that you provide later.
-class Patient:
-    def __init__(self, name, age, symptoms):
-        self.name = name
-        self.age = age
-        self.symptoms = symptoms
-        # You can add more attributes here based on the actual Patient class definition.
+# Assuming we have a list to store our patient objects
+patients_list = []
 
-patients = []
-
-@app.route('/receive_data', methods=['POST'])
-def receive_data():
+@app.route('/process_data', methods=['POST'])
+def process_data():
     data = request.json
+    print("HELP ME IM DYING")
     try:
-        # Create a Patient object with the incoming data
-        patient = Patient(
+        # Creating a new patient object with the received data
+        new_patient = Patients(
             name=data.get('name'),
             age=data.get('age'),
-            symptoms={
-                'name': data.get('symptom_name'),
-                'severity': data.get('severity'),
-                'time': data.get('time')
-            }
+            score=None,  # Assuming score will be calculated or set later
+            severity=data.get('severity'),
+            list_of_symptoms_durations=[(data.get('symptom_name'), data.get('time'))]
         )
-        # Store the patient object in a list (you might want to use a database in production)
-        patients.append(patient)
-        # Acknowledge the receipt of patient data
-        return jsonify({'message': 'Patient data received successfully.'}), 200
+
+        # Adding the new patient to our list
+        patients_list.append(new_patient)
+
+        # You may want to add functionality to calculate and set the score here
+
+        return jsonify({'message': 'Patient data received and processed successfully.'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/patients', methods=['GET'])
 def get_patients():
     try:
-        # Assuming there is a method to serialize Patient objects to a dictionary
-        # This is just a placeholder to show the structure
-        patients_data = [{'name': patient.name, 'age': patient.age, 'symptoms': patient.symptoms} for patient in patients]
+        # Serialize the patient data to send as JSON
+        patients_data = [{
+            'name': patient.get_name(),
+            'age': patient.get_age(),
+            'severity': patient.get_severity(),
+            'symptoms_duration': patient.get_list_of_symptoms_durations()
+        } for patient in patients_list]
+
         return jsonify(patients_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
