@@ -22,6 +22,12 @@ def process_data():
             list_of_symptoms_durations=[(data.get('symptom_name'), data.get('time'))]
         )
 
+        # print new patient . name
+        print(new_patient.get_name())
+        print(new_patient.get_age())
+        print(new_patient.get_severity())
+        print(new_patient.get_list_of_symptoms_durations())
+
         # Adding the new patient to our list
         patients_list.append(new_patient)
 
